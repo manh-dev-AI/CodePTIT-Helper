@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Công cụ hỗ trợ copy đề bài, testcase, download và nộp bài nhanh trên CodePTIT (code.ptit.edu.vn)",
   "author": "CodePTIT Helper",
-  "homepage_url": "https://github.com/codeptit-helper",
+  "homepage_url": "https://github.com/manh-dev-AI/CodePTIT-Helper",
 
   "permissions": [
     "storage",
