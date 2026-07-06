@@ -89,7 +89,7 @@ v1.0.0
 
 ## Tác giả
 
-Hoàng Hữu Mạnh
+gg antigravity + https://github.com/nvbangg/CodePTIT_Copier 
 
 ## Giấy phép
 
