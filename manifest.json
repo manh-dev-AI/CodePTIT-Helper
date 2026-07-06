@@ -1,0 +1,67 @@
+{
+  "manifest_version": 3,
+  "name": "CodePTIT Helper",
+  "version": "1.0.0",
+  "description": "Công cụ hỗ trợ copy đề bài, testcase, download và nộp bài nhanh trên CodePTIT (code.ptit.edu.vn)",
+  "author": "CodePTIT Helper",
+  "homepage_url": "https://github.com/codeptit-helper",
+
+  "permissions": [
+    "storage",
+    "downloads",
+    "clipboardWrite",
+    "activeTab"
+  ],
+
+  "host_permissions": [
+    "https://code.ptit.edu.vn/*",
+    "http://localhost/*"
+  ],
+
+  "action": {
+    "default_title": "CodePTIT Helper",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://code.ptit.edu.vn/*"],
+      "js": ["utils.js", "modules/parser.js", "modules/clipboard.js", "modules/download.js", "modules/storage.js", "modules/problem.js", "modules/history.js", "modules/toolbar.js", "modules/submit-box.js", "modules/observer.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "commands": {
+    "copy-problem": {
+      "suggested_key": { "default": "Alt+C" },
+      "description": "Copy Problem"
+    },
+    "copy-input": {
+      "suggested_key": { "default": "Alt+I" },
+      "description": "Copy Input"
+    },
+    "copy-output": {
+      "suggested_key": { "default": "Alt+O" },
+      "description": "Copy Output"
+    },
+    "download-testcase": {
+      "suggested_key": { "default": "Alt+D" },
+      "description": "Download Testcase"
+    }
+  }
+}
