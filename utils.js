@@ -28,14 +28,71 @@ CPH.Utils = (() => {
   const hasText = (el) => !!el?.textContent?.trim();
 
   /**
-   * Get clean text from a cell, replacing special whitespace
+   * Get clean text from a cell using DOM traversal to avoid innerText duplication.
+   *
+   * Bug: `innerText` on cells containing <pre>/<code> block elements can render
+   * the content twice — once for the block element and once for the cell itself.
+   * Walking the DOM manually and emitting newlines at block boundaries avoids this.
    */
   const getCellText = (cell) => {
     // Clone the cell to avoid modifying the original DOM
     const clone = cell.cloneNode(true);
     // Remove tc-copy buttons from clone
     clone.querySelectorAll('.tc-copy').forEach(btn => btn.remove());
-    return clone.innerText.replace(WHITESPACE_RE, ' ').trimEnd();
+
+    // Block-level tags that should emit a newline after their content
+    const BLOCK_TAGS = new Set(['p', 'div', 'pre', 'li', 'tr', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
+
+    /**
+     * Recursively walk a DOM node and collect text fragments.
+     * @param {Node} node
+     * @param {string[]} parts - accumulator
+     */
+    const walk = (node, parts) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        // Replace special Unicode whitespace, then normalize internal whitespace
+        // but preserve intentional spaces (do NOT collapse multiple spaces here —
+        // test-case tokens may be space-separated on a single line).
+        const text = node.textContent.replace(WHITESPACE_RE, ' ').replace(/\t/g, ' ');
+        parts.push(text);
+        return;
+      }
+      if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+      const tag = node.tagName.toLowerCase();
+      const isBr = tag === 'br';
+      const isBlock = BLOCK_TAGS.has(tag);
+
+      if (isBr) {
+        parts.push('\n');
+        return;
+      }
+
+      for (const child of node.childNodes) {
+        walk(child, parts);
+      }
+
+      if (isBlock) {
+        parts.push('\n');
+      }
+    };
+
+    const parts = [];
+    walk(clone, parts);
+
+    // Join all fragments, then split into lines and clean each one
+    const raw = parts.join('');
+    const lines = raw
+      .split('\n')
+      .map(line => line.trim()); // strip leading/trailing whitespace per line
+
+    // Remove leading and trailing blank lines
+    while (lines.length && lines[0] === '') lines.shift();
+    while (lines.length && lines[lines.length - 1] === '') lines.pop();
+
+    // Remove all blank lines — test cases never need empty lines between values
+    const cleaned = lines.filter(line => line !== '');
+    return cleaned.join('\n');
   };
 
   /**
